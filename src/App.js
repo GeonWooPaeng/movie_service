@@ -1,38 +1,7 @@
 import React from "react";
-import PropTypes from "prop-types";
-import { directive } from "@babel/types";
 import axios from "axios";
-
-// class App extends React.Component {
-// 	state = {
-// 		count: 0
-// 	};
-// 	add = () => {
-// 		this.setState(currnet => ({ count: current.count + 1 }))
-// 	};
-// 	minus = () => {
-// 		this.setState({ count: this.state.count - 1});
-// 	};
-// 	componentDidMount() {
-// 		console.log("Component rendered");
-// 	}
-// 	componentDidUpdate() {
-// 		console.log("I just update");
-// 	}
-// 	componenetWillUnmount() {
-// 		console.log("Goodbye, cruel world");
-// 	}
-// 	render () {
-// 		return (
-// 			<div>
-// 				<h1> The number is: {this.state.count}</h1>
-// 				<button onClick={this.add}>Add</button>
-// 				<button onClick={this.minus}>Minus</button>
-// 			</div>
-// 		);	
-// 	}
-// }
-
+import Movie from "./Movie";
+import "./App.css";
 
 class App extends React.Component {
 	state = {
@@ -40,15 +9,44 @@ class App extends React.Component {
 		movies: []
 	};
 	getMovies = async () => {
-		const movies = await axios.get("https://yts-proxy.now.sh/list_movies.json");
-	}
+		const {
+			data: {
+				data: { movies }
+			}
+		} = await axios.get(
+			"https://yts-proxy.now.sh/list_movies.json?sort_by=rating"
+		);
+		this.setState({ movies, isLoading: false});
+	};
 	componentDidMount() {
 		this.getMovies();
 	}
 	render() {
-		const { isLoading } = this.state;
-		return <div>{this.state.isLoading ? "Loading" : "We are ready"}</div>
+		const { isLoading, movies } = this.state;
+		return (
+			<section className="container">
+				{ isLoading ? (
+					<div className="loader">
+						<span className="loader__text">Loading...</span>
+					</div>
+				) : (
+					<div className="movies">
+					{movies.map(movie => (
+						<Movie
+							key={movie.id}
+							id={movie.id}
+							year={movie.year}
+							title={movie.title}
+							summary={movie.summary}
+							poster={movie.medium_cover_image}
+							genres={movie.genres}
+						/>
+					))}
+				</div>
+				)}
+			</section>
+		);
 	}
 }
+
 export default App;
- 
